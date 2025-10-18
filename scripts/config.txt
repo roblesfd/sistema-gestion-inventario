@@ -1,0 +1,9 @@
+Crear contenedor docker para postgresql
+
+docker run --name pg-inventory -e POSTGRES_DB=inventorydb \
+  -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=password \
+  -p 5432:5432 -d postgres
+
+  Ejecutar contenedor y conectarse a db via cli
+  
+  docker exec -it pg_inventory psql -U admin -d inventorydb

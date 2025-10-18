@@ -1,0 +1,14 @@
+/target/
+ *.log
+ *.iml
+ /.idea/
+ /.vscode/
+ /.classpath
+ /.project
+/.settings
+ /bin/
+/out/
+.factorypath
+.env
+funcionalidades.txt
+.classpath/

@@ -1,0 +1,56 @@
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        stock:
+          type: integer
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, sku, price, stock]
+
+    CreateProductRequest:
+      type: object
+      properties:
+        name: { type: string }
+        sku: { type: string }
+        description: { type: string }
+        price: { type: number, format: double }
+        stock: { type: integer, minimum: 0 }
+        category: { type: string }
+      required: [name, sku, price, stock]
+
+    UpdateStockRequest:
+      type: object
+      properties:
+        delta:
+          type: integer
+          description: "positivo=entrada, negativo=salida"
+      required: [delta]
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        error: { type: string }
+        message: { type: string }
+        path: { type: string }
