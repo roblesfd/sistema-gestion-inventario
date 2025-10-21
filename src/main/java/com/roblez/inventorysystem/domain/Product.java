@@ -7,6 +7,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -25,7 +27,8 @@ public class Product {
 	
 	@Id
 	@Column(columnDefinition="uuid")
-	private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 	
 	@NotBlank
 	@Column(nullable=false)
@@ -87,6 +90,7 @@ public class Product {
 	//Constructores
 	public Product() {}
 
+	// Constructor para requests
 	public Product(@NotBlank String name, @NotBlank String sku, @NotNull @Min(0) BigDecimal price, @NotNull @Min(0) Integer stock,
 			Category category) {
 		super();
@@ -97,6 +101,7 @@ public class Product {
 		this.category = category;
 	}
 
+	// Constructor para responses
 	public Product(@NotBlank String name, @NotBlank String sku, String description, @NotNull @Min(0) BigDecimal price,
 			@NotNull @Min(0) Integer stock, Category category, boolean active) {
 		this.name = name;

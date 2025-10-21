@@ -77,4 +77,26 @@ public class StockMovementService {
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
+    
+    @Transactional(readOnly = true)
+    public List<StockMovementResponse> getMovementsAfterDate(Instant date) {
+        return stockRepo.findByHappenedAtGreaterThan(date).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<StockMovementResponse> getMovementsBeforeDate(Instant date) {
+        return stockRepo.findByHappenedAtLessThanEqual(date).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    // Obtener movimientos mayores o iguales a delta (cantidad)
+    @Transactional(readOnly = true)
+    public List<StockMovementResponse> getMovementsGreaterThanDelta(Integer delta) {
+        return stockRepo.findByDeltaGreaterThanEqual(delta).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

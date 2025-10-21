@@ -30,20 +30,11 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
     
-    @Operation(summary = "Crea una categoría", description = "Agrega una nueva categoría al inventario")
     @PostMapping
+    @Operation(summary = "Crea una categoría", description = "Agrega una nueva categoría al inventario")
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
         CategoryResponse dto = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-    }
-    
-
-    @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(
-            @PathVariable UUID id,
-            @Valid @RequestBody CategoryRequest request) {
-        CategoryResponse dto = categoryService.updateCategory(id, request);
-        return ResponseEntity.ok(dto);
     }
     
     @GetMapping
@@ -51,6 +42,14 @@ public class CategoryController {
     	List<CategoryResponse> list = categoryService.getAllCategories();
     	
     	return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(
+            @PathVariable UUID id,
+            @Valid @RequestBody CategoryRequest request) {
+        CategoryResponse dto = categoryService.updateCategory(id, request);
+        return ResponseEntity.ok(dto);
     }
     
     @GetMapping("/active")

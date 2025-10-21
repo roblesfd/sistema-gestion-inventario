@@ -11,7 +11,6 @@ public record ProductRequest(
     @NotBlank String sku,
     String description,
     @NotNull @Min(0) BigDecimal price,
-    @NotNull @Min(0) Integer stock,
     UUID categoryId,          // opcional: resolver en el service
     String categoryName,      // opcional: alternativa a categoryId
     Boolean active            // opcional, puede ser null para dejar sin cambio

@@ -1,7 +1,6 @@
 package com.roblez.inventorysystem.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -11,23 +10,27 @@ import org.springframework.transaction.annotation.Transactional;
 import com.roblez.inventorysystem.config.ProductMapper;
 import com.roblez.inventorysystem.domain.Category;
 import com.roblez.inventorysystem.domain.Product;
+import com.roblez.inventorysystem.domain.StockMovement;
 import com.roblez.inventorysystem.dto.ProductRequest;
 import com.roblez.inventorysystem.dto.ProductResponse;
 import com.roblez.inventorysystem.dto.UpdateStockMovementRequest;
 import com.roblez.inventorysystem.repository.CategoryRepository;
 import com.roblez.inventorysystem.repository.ProductRepository;
+import com.roblez.inventorysystem.repository.StockMovementRepository;
 
 @Service
 @Transactional
 public class ProductService {
 	private final ProductRepository productRepository;
 	private final CategoryRepository categoryRepository;
+	private final StockMovementRepository stockMovementRepo;
 	private final ProductMapper mapper;
 	
 	public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository,
-			ProductMapper productMapper) {
+			StockMovementRepository stockRepo, ProductMapper productMapper) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
+		this.stockMovementRepo = stockRepo;
 		this.mapper = productMapper;
 	}
 	
@@ -45,9 +48,7 @@ public class ProductService {
 		} else if(request.categoryName() != null) {
 			Category category = categoryRepository.findByName(request.categoryName())
 					.orElseGet(() -> {
-						Category c = new Category();
-						c.setName(request.categoryName());
-						return categoryRepository.save(c);
+						return categoryRepository.save(new Category(request.categoryName()));
 					});
 			product.setCategory(category);
 		}
@@ -58,6 +59,7 @@ public class ProductService {
 	}
 	
 	//Actualizar producto
+	// Si se quiere actualizar stock, con metodo adjustStock unicamente
 	public ProductResponse updateProduct(UUID id, ProductRequest request) {
 		Product product = productRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
@@ -66,21 +68,16 @@ public class ProductService {
 		product.setSku(request.sku());
 		product.setDescription(request.description());
 		product.setPrice(request.price());
-		product.setStock(request.stock());
 		
 		if(request.active() != null) product.setActive(request.active());
 		
 		if(request.categoryId() != null) {
-			@SuppressWarnings("deprecation")
-			Category category = categoryRepository.findById(request.categoryId()).orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
-			
+			Category category = categoryRepository.findById(request.categoryId()).orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));			
 			product.setCategory(category);
 		}else if(request.categoryName() != null) {
 			Category category = categoryRepository.findByName(request.categoryName())
 					.orElseGet(() -> {
-						Category c = new Category();
-						c.setName(request.categoryName());
-						return categoryRepository.save(c);
+						return categoryRepository.save(new Category(request.categoryName()));
 					});
 			product.setCategory(category);
 		}
@@ -93,7 +90,11 @@ public class ProductService {
 	public ProductResponse adjustStock(UUID id, UpdateStockMovementRequest request) {
 		Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 		product.adjustStock(request.delta());
+		
 		Product updated = productRepository.save(product);
+		stockMovementRepo.save(
+			new StockMovement(updated, request.delta(), request.reason())
+		);
 		
 		return mapper.toDto(updated);
 	}
@@ -102,6 +103,13 @@ public class ProductService {
 	@Transactional(readOnly= true)
 	public ProductResponse getProductById(UUID id) {
 		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+		return mapper.toDto(product);
+	}
+	
+	// Obtener producto por sku
+	public ProductResponse getProductBySku(String sku) {
+		Product product = productRepository.findBySku(sku)
 				.orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 		return mapper.toDto(product);
 	}
@@ -141,22 +149,22 @@ public class ProductService {
 	@Transactional(readOnly=true)
 	public List<ProductResponse> searchByName(String name) {
 		return productRepository.findByNameContainingIgnoreCase(name).stream()
-				.map(mapper::toDto).collect(Collectors.toList());
+				.map(mapper::toDto)
+				.collect(Collectors.toList());
 	}
 	
 	// Filtrar por stock bajo
 	@Transactional(readOnly=true)
 	public List<ProductResponse> getProductsLowStock(int threshold) {
 		return productRepository.findByStockLessThan(threshold).stream()
-				.map(mapper::toDto).collect(Collectors.toList());
+				.map(mapper::toDto)
+				.collect(Collectors.toList());
 	}
 	
 	// Filtrar por rango de precio
 	public List<ProductResponse> getProductsByPriceRange(Double min, Double max) {
 		return productRepository.findByPriceBetween(min, max).stream()
-				.map(mapper::toDto).collect(Collectors.toList());
+				.map(mapper::toDto)
+				.collect(Collectors.toList());
 	}
-	
-	
-	
 }

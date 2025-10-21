@@ -45,7 +45,6 @@ public class ProductServiceTest {
 			    "SKU-001",                       
 			    "Laptop de alto rendimiento",    
 			    new BigDecimal("1500.00"),       
-			    10,                              
 			    UUID.randomUUID(),               
 			    "Electronics",                   
 			    true                             

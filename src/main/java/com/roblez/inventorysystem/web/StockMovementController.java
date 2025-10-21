@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.roblez.inventorysystem.dto.StockMovementResponse;
 import com.roblez.inventorysystem.service.StockMovementService;
 
+import io.swagger.v3.oas.annotations.Operation;
+	
 
 @RestController
 @RequestMapping("/api/stock-movements")
@@ -40,6 +42,7 @@ public class StockMovementController {
 	}
 	
     @GetMapping("/product/{id}/range")
+    @Operation(summary = "Obtener dentro de un rango de fechas", description = "Obtiene todos los movimiento dentro de un rango de fechas (from, to)")
     public ResponseEntity<List<StockMovementResponse>> getMovementsByDateRange(
             @PathVariable UUID id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
@@ -51,8 +54,29 @@ public class StockMovementController {
     }
     
     @GetMapping("/recent")
+    @Operation(summary = "Obtener recientes", description = "Obtiene los últimos 10 movimientos")
     public ResponseEntity<List<StockMovementResponse>> getRecentMovements() {
         List<StockMovementResponse> list = stockService.getRecentMovements();
+        return ResponseEntity.ok(list);
+    }
+    
+    @GetMapping("/after-date")
+    @Operation(summary = "Obtener después de una fecha", description = "Obtiene todos los movimientos a partir de una fecha")
+    public ResponseEntity<List<StockMovementResponse>> getMovementsAfterDate(@RequestParam Instant date ) {
+        List<StockMovementResponse> list = stockService.getMovementsAfterDate(date);
+        return ResponseEntity.ok(list);
+    }
+    
+    @GetMapping("/before-date")
+    @Operation(summary = "Obtener antes de una fecha", description = "Obtiene todos los movimientos antes de una fecha")
+    public ResponseEntity<List<StockMovementResponse>> getMovementsBeforeDate(@RequestParam Instant date ) {
+        List<StockMovementResponse> list = stockService.getMovementsBeforeDate(date);
+        return ResponseEntity.ok(list);
+    }
+    
+    @GetMapping("/gte-quantity")
+    public ResponseEntity<List<StockMovementResponse>> getMovementsGreaterThanDelta(@RequestParam Integer delta ) {
+        List<StockMovementResponse> list = stockService.getMovementsGreaterThanDelta(delta);
         return ResponseEntity.ok(list);
     }
 }

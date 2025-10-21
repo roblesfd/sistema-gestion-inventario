@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: sgi
   datasource:
     url: ${DB_URL}
     username: ${DB_USER} 

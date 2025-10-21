@@ -49,7 +49,7 @@ public class StockMovementServiceTest {
     void createMovement_ShouldSaveMovementCorrectly() {
 
     	when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-        StockMovement movement = new StockMovement(product, 5, null, "Ingreso");  
+        StockMovement movement = new StockMovement(product, 5, "Ingreso");  
         when(stockMovementRepository.save(any(StockMovement.class))).thenReturn(movement);
         when(mapper.toDto(any(StockMovement.class)))
         	.thenAnswer(inv -> new StockMovementResponse(((StockMovement)inv.getArgument(0)).getId(),

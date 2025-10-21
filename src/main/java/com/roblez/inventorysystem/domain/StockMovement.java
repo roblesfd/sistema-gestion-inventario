@@ -6,6 +6,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,7 +19,8 @@ import jakarta.validation.constraints.NotNull;
 public class StockMovement {
 	@Id
 	@Column(columnDefinition="uuid")
-	private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 	
 	@ManyToOne(fetch= FetchType.LAZY)
 	@JoinColumn(name="product_id", nullable=false)
@@ -35,10 +38,9 @@ public class StockMovement {
 	//Constructores
 	public StockMovement() {}
 
-	public StockMovement(Product product, @NotNull Integer delta, Instant happenedAt, String reason) {
+	public StockMovement(Product product, @NotNull Integer delta, String reason) {
 		this.product = product;
 		this.delta = delta;
-		this.happenedAt = happenedAt;
 		this.reason = reason;
 	}
 	

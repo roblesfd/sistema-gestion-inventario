@@ -8,14 +8,16 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.roblez.inventorysystem.domain.StockMovement;
+import com.roblez.inventorysystem.dto.UpdateStockMovementRequest;
 
 public interface StockMovementRepository extends JpaRepository<StockMovement, UUID> {
-	
+	StockMovement save(StockMovement movement);
 	List<StockMovement> findByProductId(UUID id);
 	long countByProductId(UUID id);
 	List<StockMovement> findByProductIdAndHappenedAtBetween(UUID id, Instant from, Instant to);
-	List<StockMovement> findByDelta(Integer delta);
+	List<StockMovement> findByDeltaGreaterThanEqual(Integer delta);
 	List<StockMovement> findTop10ByOrderByHappenedAtDesc();
 	long countByProductIdAndDelta(UUID id, Integer delta);
-	List<StockMovement> findByHappenedAtAfter(Instant after);
+	List<StockMovement> findByHappenedAtGreaterThan(Instant after);
+	List<StockMovement> findByHappenedAtLessThanEqual(Instant before);
 }
