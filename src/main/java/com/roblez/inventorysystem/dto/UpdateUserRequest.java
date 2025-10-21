@@ -10,7 +10,7 @@ public record UpdateUserRequest (
 	    String username,
 	    String email,
 	    String password,
-	    Set<Role> roles,
+	    Set<String> roles,
 	    String name,
 	    String lastname,
 	    boolean active

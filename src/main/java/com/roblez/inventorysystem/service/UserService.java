@@ -17,6 +17,7 @@ import com.roblez.inventorysystem.dto.UpdateUserRequest;
 import com.roblez.inventorysystem.dto.UserRequest;
 import com.roblez.inventorysystem.dto.UserResponse;
 import com.roblez.inventorysystem.exception.ResourceNotFoundException;
+import com.roblez.inventorysystem.repository.RoleRepository;
 import com.roblez.inventorysystem.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -26,12 +27,14 @@ import jakarta.validation.constraints.NotEmpty;
 @Transactional
 public class UserService {
 	private final UserRepository userRepo;
+	private final RoleRepository roleRepo;
 	private final UserMapper mapper;
 	private final PasswordEncoder passwordEncoder;
 	
 	
-	public UserService(UserRepository userRepo, UserMapper mapper, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepo, UserMapper mapper, RoleRepository roleRepo, PasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
+		this.roleRepo = roleRepo;
 		this.mapper = mapper;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -65,28 +68,33 @@ public class UserService {
 	}
 	
 	public UserResponse updateUser(UpdateUserRequest request) {
-			User found = userRepo.findById(request.id()).orElseThrow(() -> new ResourceNotFoundException("No existe un usuario con ese id"));
+			User user = userRepo.findById(request.id()).orElseThrow(() -> new ResourceNotFoundException("No existe un usuario con ese id"));
 			
-		    if (!found.getUsername().equals(request.username()) && userRepo.existsByUsername(request.username())) {
+		    if (!user.getUsername().equals(request.username()) && userRepo.existsByUsername(request.username())) {
 		        throw new IllegalArgumentException("Nombre de usuario ya en uso");
 		    }
-		    if (!found.getEmail().equals(request.email()) && userRepo.existsByEmail(request.email())) {
+		    if (!user.getEmail().equals(request.email()) && userRepo.existsByEmail(request.email())) {
 		        throw new IllegalArgumentException("Email ya en uso");
 		    }
+		    
+		    Set<Role> foundRoles = roleRepo.findByNameIn(request.roles());
+		    
+		    if (foundRoles.size() != request.roles().size()) {
+		        throw new IllegalArgumentException("Algunos roles no existen en la base de datos");
+		    }
 			
-			User user = mapper.toUpdateEntity(request, found);
 			user.setUsername(request.username());
 			user.setEmail(request.email());
-			user.setRoles(request.roles());
+			user.setRoles(foundRoles);
 			user.setName(request.name());
 			user.setLastName(request.lastname());
 			user.setActive(request.active());
 			
 		    if (request.password() != null && !request.password().isBlank()) {
-		        found.setPassword(passwordEncoder.encode(request.password()));
+		        user.setPassword(passwordEncoder.encode(request.password()));
 		    }
 						
-		    return mapper.toDto(userRepo.save(user));
+		    return mapper.toDto( userRepo.save(user));
 	}
 
 	public void deleteUser(UUID id) {
