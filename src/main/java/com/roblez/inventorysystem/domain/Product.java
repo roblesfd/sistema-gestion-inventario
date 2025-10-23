@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -53,6 +55,7 @@ public class Product {
 	
 	@ManyToOne(fetch= FetchType.LAZY)
 	@JoinColumn(name="category_id")
+	@JsonBackReference
 	private Category category;
 	
 	@Column

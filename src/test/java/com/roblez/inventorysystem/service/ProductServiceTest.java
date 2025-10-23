@@ -19,6 +19,7 @@ import com.roblez.inventorysystem.dto.ProductRequest;
 import com.roblez.inventorysystem.dto.UpdateStockMovementRequest;
 import com.roblez.inventorysystem.repository.CategoryRepository;
 import com.roblez.inventorysystem.repository.ProductRepository;
+import com.roblez.inventorysystem.repository.StockMovementRepository;
 
 public class ProductServiceTest {
 	@InjectMocks
@@ -32,6 +33,9 @@ public class ProductServiceTest {
 	
 	@Mock
 	private ProductMapper productMapper;
+	
+    @Mock
+    private StockMovementRepository stockMovementRepo;
 	
 	private ProductRequest request;
 	private Product product;

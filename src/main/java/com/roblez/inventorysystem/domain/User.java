@@ -49,7 +49,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
         )
-    @JsonManagedReference
+    @JsonManagedReference("role-users")
 	private Set<Role> roles = new HashSet<>();
 	
 	private Instant joinedDate;

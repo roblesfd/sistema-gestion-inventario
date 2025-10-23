@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.roblez.inventorysystem.domain.StockMovement;
 import com.roblez.inventorysystem.dto.UpdateStockMovementRequest;
 
+@Repository
 public interface StockMovementRepository extends JpaRepository<StockMovement, UUID> {
 	StockMovement save(StockMovement movement);
 	List<StockMovement> findByProductId(UUID id);

@@ -1,6 +1,7 @@
 package com.roblez.inventorysystem.web;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -117,7 +118,7 @@ public class ProductController {
         List<ProductResponse> list = productService.getProductsByPriceRange(min, max);
         return ResponseEntity.ok(list);
     }
-
+    
     // Desactivar producto (borrado lógico)
     @DeleteMapping("/{id}")
     @Operation(summary = "Desactivar un producto", description = "Desactiva un producto cambiando el valor de active=false. Reactivarlo con PUT /api/products/{id}")

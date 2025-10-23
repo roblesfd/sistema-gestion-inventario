@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,6 +27,7 @@ public class Category {
 	private String name;
 	
 	@OneToMany(mappedBy="category", fetch=FetchType.LAZY)
+	@JsonManagedReference
 	private List<Product> products = new ArrayList<>();
 	
 	@Column
