@@ -1,6 +1,7 @@
 package com.roblez.inventorysystem.security;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.roblez.inventorysystem.exception.ResourceNotFoundException;
 import com.roblez.inventorysystem.service.CustomUserDetailsService;
 
 
@@ -33,23 +35,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     							    FilterChain filterChain) throws ServletException, IOException {
     	String authHeader = request.getHeader("Authorization");
     	String token = null;
-    	String username = null;
     	
     	if(authHeader != null && authHeader.startsWith("Bearer ")) {
     		token = authHeader.substring(7);
-    		username = jwtUtil.extractUsername(token).get();
-    	}
-    	
-    	if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-    		UserDetails userDetails = userDetailService.loadUserByUsername(username); 
+    		Optional<String>  optUsername = jwtUtil.extractUsername(token);
     		
-    		if(jwtUtil.isTokenValid(token, userDetails)) {
-    			UsernamePasswordAuthenticationToken authToken = 
-    					new UsernamePasswordAuthenticationToken(
-    							userDetails, null, userDetails.getAuthorities()
-    					);
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-    		}
+    		if(optUsername.isPresent()) {
+                String username = optUsername.get();
+    			
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails;
+                    try {
+                        userDetails = userDetailService.loadUserByUsername(username);
+                    } catch (ResourceNotFoundException e) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
+                    if (jwtUtil.isTokenValid(token, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    } 
+                }
+			}
+    		
+    		
     	}
     	
     	filterChain.doFilter(request, response);

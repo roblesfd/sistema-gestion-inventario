@@ -20,7 +20,6 @@ import jakarta.persistence.JoinColumn;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 
-
 @Entity
 @Table(name="users")
 public class User {
@@ -39,9 +38,10 @@ public class User {
 	@Column(nullable=false)
 	private String password;
 	
+	private String name;	
+	
 	private String lastName;
 	
-	private String name;	
 	
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

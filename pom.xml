@@ -133,6 +133,23 @@
 		    <version>3.1.1</version>
 		</dependency>
 		
+		<dependency>
+		  <groupId>de.vandermeer</groupId>
+		  <artifactId>asciitable</artifactId>
+		  <version>0.3.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.xhtmlrenderer</groupId>
+		    <artifactId>flying-saucer-pdf-openpdf</artifactId>
+		    <version>9.1.22</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+		    <version>3.5.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>

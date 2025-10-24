@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 5px; text-align: left; }
+        th { background: #eee; }
+		body {margin: 10px}
+		h2 {text-align: center;}
+    </style>
+</head>
+<body>
+<h2 th:text="${title}">Reporte</h2>
+<table>
+    <thead>
+    <tr>
+        <th th:each="col : ${columns}" th:text="${col.label}">Columna</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="row : ${rows}">
+        <td th:each="col : ${columns}" th:text="${row.get(col.key)}">Valor</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
