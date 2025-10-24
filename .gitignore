@@ -12,3 +12,6 @@
 .env
 funcionalidades.txt
 .classpath/
+
+src/main/java/com/roblez/inventorysystem/alert/EmailToSmsSender.java
+

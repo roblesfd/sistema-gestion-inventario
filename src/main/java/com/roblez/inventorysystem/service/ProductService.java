@@ -1,13 +1,15 @@
 package com.roblez.inventorysystem.service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.roblez.inventorysystem.alert.AlertSender;
+import com.roblez.inventorysystem.alert.EmailProperties;
 import com.roblez.inventorysystem.config.ProductMapper;
 import com.roblez.inventorysystem.domain.Category;
 import com.roblez.inventorysystem.domain.Product;
@@ -26,13 +28,23 @@ public class ProductService {
 	private final CategoryRepository categoryRepository;
 	private final StockMovementRepository stockMovementRepo;
 	private final ProductMapper mapper;
+	private final AlertSender alertSender;
+	private final String emailRecipient;
 	
-	public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository,
-			StockMovementRepository stockRepo, ProductMapper productMapper) {
+	public ProductService(
+			ProductRepository productRepository, 
+			CategoryRepository categoryRepository,
+			StockMovementRepository stockRepo, 
+			ProductMapper productMapper, 
+			AlertSender alertSender,
+			EmailProperties emailProperties
+			) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
 		this.stockMovementRepo = stockRepo;
 		this.mapper = productMapper;
+		this.alertSender = alertSender;
+		this.emailRecipient = emailProperties.getRecipient();
 	}
 	
 	//Crear producto
@@ -91,6 +103,22 @@ public class ProductService {
 	public ProductResponse adjustStock(UUID id, UpdateStockMovementRequest request) {
 		Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 		product.adjustStock(request.delta());
+		
+		if (product.getStock() < product.getMinStock()) {
+			String message = String.format("""
+				Stock bajo para Producto 
+				Nombre: %s 
+				ID: %s
+				Stock actual: %d
+				""", product.getName(), product.getId().toString(), product.getStock());
+			System.out.println(message);
+			try {
+				alertSender.sendAlert(emailRecipient, "Alerta de Stock bajo", message);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		
 		Product updated = productRepository.save(product);
 		stockMovementRepo.save(

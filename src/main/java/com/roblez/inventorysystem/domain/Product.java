@@ -53,6 +53,10 @@ public class Product {
 	@Column(nullable=false)
 	private Integer stock = 0;
 	
+	@Min(30)
+	@Column(nullable=true)
+	private Integer minStock = 30;
+	
 	@ManyToOne(fetch= FetchType.LAZY)
 	@JoinColumn(name="category_id")
 	@JsonBackReference
@@ -163,6 +167,17 @@ public class Product {
 
 	public void setStock(Integer stock) {
 		this.stock = stock;
+	}
+	
+	public Integer getMinStock() {
+		if (minStock == null) {
+			return 30;
+		}
+		return minStock;
+	}
+
+	public void setMinStock(Integer stock) {
+		this.minStock = stock;
 	}
 
 	public Category getCategory() {
