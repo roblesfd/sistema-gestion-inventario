@@ -12,6 +12,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.roblez.inventorysystem.config.PurchaseOrderItemMapper;
@@ -48,6 +50,8 @@ public class PurchaseOrderService {
 	private final ProductRepository productRepo;
 	private final PurchaseOrderMapper mapper;
 	private final PurchaseOrderItemMapper itemMapper;
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
 	
 	
 	public PurchaseOrderService(
@@ -121,6 +125,7 @@ public class PurchaseOrderService {
 	        
 	        // 7) persistir UNA vez y devolver DTO
 	        PurchaseOrder saved = purchaseOrderRepo.save(order);
+	        log.info("Se creó una orden de compra con ID: {}, Proveedor: {} y Valor total:{}", saved.getId(), saved.getSupplier().getFullName(), saved.getTotal());
 	        return mapper.toDto(saved);
 	}
 	
@@ -194,12 +199,25 @@ public class PurchaseOrderService {
 		
 		syncItems(order, request.items());
 		
+		if(request.status() == OrderStatus.RECEIVED) {
+			request.items().stream().forEach(item -> {
+				Product p = productRepo.findById(item.productId()).orElseThrow(() -> new ResourceNotFoundException("Producto de la orden de compra no encontrado"));
+				p.adjustStock(item.quantity());
+				productRepo.save(p);
+			});
+		}
+		
 		order.setStatus(request.status());
+		
 		order.setSupplier(supplier);
 		order.setGeneratedBy(user);
 		order.setExpectedDeliveryDate(request.expectedDeliveryDate());
 		
-		return mapper.toDto(purchaseOrderRepo.save(order));
+		PurchaseOrder updated = purchaseOrderRepo.save(order);
+		
+        log.info("Se actualizó una orden de compra con ID: {}, Proveedor: {} y Valor total:{}", updated.getId(), updated.getSupplier().getFullName(), updated.getTotal());
+		
+		return mapper.toDto(updated);
 	}
 	
 	public void deletePurchaseOrder(UUID id) {
@@ -207,6 +225,8 @@ public class PurchaseOrderService {
 				.orElseThrow(() -> new ResourceNotFoundException("Orden de compra no encontrada"));
 		
 		purchaseOrderRepo.deleteById(order.getId());
+		
+        log.info("Se eliminó una orden de compra con ID: {}, Proveedor: {} y Valor total:{}", order.getId(), order.getSupplier().getFullName(), order.getTotal());
 	}
 	
 	private void syncItems(PurchaseOrder order, Set<PurchaseOrderItemUpdateRequest> itemRequests) {

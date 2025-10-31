@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.roblez.inventorysystem.audit.Auditable;
 import com.roblez.inventorysystem.security.ValidPassword;
 
 import jakarta.persistence.Column;
@@ -22,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name="users")
-public class User {
+public class User extends Auditable{
 
 	@Id
 	@Column(columnDefinition="uuid")
@@ -51,9 +52,7 @@ public class User {
         )
     @JsonManagedReference("role-users")
 	private Set<Role> roles = new HashSet<>();
-	
-	private Instant joinedDate;
-	
+		
 	private Instant lastConnection;
 	
 	private boolean active = false;
@@ -62,7 +61,7 @@ public class User {
 	public User() {}
 	
 	public User(UUID id, String username, String email, String password, String lastName, String name,
-			Set<Role> roles, Instant joinedDate, Instant lastConnection, boolean active) {
+			Set<Role> roles, Instant lastConnection, boolean active) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -71,7 +70,6 @@ public class User {
 		this.lastName = lastName;
 		this.name = name;
 		this.roles = roles;
-		this.joinedDate = joinedDate;
 		this.lastConnection = lastConnection;
 		this.active = active;
 	}
@@ -133,14 +131,6 @@ public class User {
 		this.roles = roles;
 	}
 
-	public Instant getJoinedDate() {
-		return joinedDate;
-	}
-
-	public void setJoinedDate(Instant joinedDate) {
-		this.joinedDate = joinedDate;
-	}
-
 	public Instant getLastConnection() {
 		return lastConnection;
 	}
@@ -161,7 +151,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password
-				+ ", lastName=" + lastName + ", name=" + name + ", roles=" + roles + ", joinedDate=" + joinedDate
+				+ ", lastName=" + lastName + ", name=" + name + ", roles=" + roles
 				+ ", lastConnection=" + lastConnection + ", active=" + active + "]";
 	}
 }

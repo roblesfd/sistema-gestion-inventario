@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -35,6 +34,7 @@ public class Role {
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
+    
     // Constructores
     public Role() {}
 

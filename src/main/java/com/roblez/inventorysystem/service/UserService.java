@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class UserService {
 	private final RoleRepository roleRepo;
 	private final UserMapper mapper;
 	private final PasswordEncoder passwordEncoder;
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 	
 	
 	public UserService(UserRepository userRepo, UserMapper mapper, RoleRepository roleRepo, PasswordEncoder passwordEncoder) {
@@ -51,6 +54,7 @@ public class UserService {
 		User user = mapper.toEntity(request);
 		user.setPassword(passwordEncoder.encode(request.password()));
 		userRepo.save(user);
+		log.info("Usuario creado -> ID: {}, Nombre de usuario: {}, Email:{}",user.getId(), user.getUsername(), user.getEmail());
 		
 		return mapper.toDto(user);
 	}
@@ -93,14 +97,19 @@ public class UserService {
 		    if (request.password() != null && !request.password().isBlank()) {
 		        user.setPassword(passwordEncoder.encode(request.password()));
 		    }
-						
-		    return mapper.toDto( userRepo.save(user));
+		    
+		    User updated = userRepo.save(user);
+			log.info("Usuario actualizado -> ID: {}, Nombre de usuario: {}, Email:{}",user.getId(), user.getUsername(), user.getEmail());
+
+		    return mapper.toDto(updated);
 	}
 
 	public void deleteUser(UUID id) {
 		User user = userRepo.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Usuario no encontrado con id: " + id));
 		
 		userRepo.deleteById(user.getId());
+		
+		log.info("Usuario eliminado -> ID: {}, Nombre de usuario: {}, Email:{}",user.getId(), user.getUsername(), user.getEmail());
 	}
 
 	public UserResponse findByUsernameOrEmail(String query) {

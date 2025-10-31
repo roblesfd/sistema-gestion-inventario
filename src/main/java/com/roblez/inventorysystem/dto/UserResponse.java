@@ -16,6 +16,5 @@ public record UserResponse(
 	String name,
 	String lastName,
 	Set<Role> roles,
-	Instant joinedDate,
 	Instant lastConnection
 ) {}

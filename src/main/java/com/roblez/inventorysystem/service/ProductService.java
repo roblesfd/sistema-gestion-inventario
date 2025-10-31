@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class ProductService {
 	private final ProductMapper mapper;
 	private final AlertSender alertSender;
 	private final String emailRecipient;
+	private final Logger log = LoggerFactory.getLogger(ProductService.class);
 	
 	public ProductService(
 			ProductRepository productRepository, 
@@ -68,6 +70,8 @@ public class ProductService {
 		
 		Product saved = productRepository.save(product);
 		
+		log.info("Producto creado -> ID: {}, Nombre: {}, SKU: {} ", saved.getId(), saved.getName(), saved.getSku());
+		
 		return mapper.toDto(saved);
 	}
 	
@@ -96,6 +100,8 @@ public class ProductService {
 		}
 		
 		Product updated = productRepository.save(product);
+		log.info("Producto actualizado -> ID: {}, Nombre: {}, SKU: {} ", updated.getId(), updated.getName(), updated.getSku());
+
 		return mapper.toDto(updated);
 	}
 	
@@ -119,11 +125,12 @@ public class ProductService {
 			}
 		}
 		
-		
 		Product updated = productRepository.save(product);
-		stockMovementRepo.save(
-			new StockMovement(updated, request.delta(), request.reason())
-		);
+		StockMovement movement = new StockMovement(updated, request.delta(), request.reason());
+		
+		log.info("Stock del producto actualizado -> Producto: {}, SKU: {}, Cantidad:{} ", updated.getName(), updated.getSku(), movement.getDelta());
+
+		stockMovementRepo.save(movement);
 		
 		return mapper.toDto(updated);
 	}
@@ -166,13 +173,23 @@ public class ProductService {
 				.collect(Collectors.toList());
 	}
 	
-	// Eliminar producto (desactivarlo)
+	// Desactivar producto
 	public void deactivateProduct(UUID id) {
 		Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No existe un producto con ese id"));
 		
 		product.setActive(false);
 		productRepository.save(product);
+		log.info("Producto {} con ID {} se ha desactivado", product.getName(), product.getSku());
 	}
+	
+	// Eliminar producto
+	public void deleteProduct(UUID id) {
+		Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No existe un producto con ese id"));
+		
+		productRepository.deleteById(product.getId());
+		log.info("Producto {} con ID {} se ha eliminado", product.getName(), product.getSku());
+	}
+
 	
 	// Buscar por nombre
 	@Transactional(readOnly=true)

@@ -120,10 +120,18 @@ public class ProductController {
     }
     
     // Desactivar producto (borrado lógico)
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/deactivate")
     @Operation(summary = "Desactivar un producto", description = "Desactiva un producto cambiando el valor de active=false. Reactivarlo con PUT /api/products/{id}")
     public ResponseEntity<Void> deactivateProduct(@PathVariable UUID id) {
         productService.deactivateProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // Desactivar producto (borrado lógico)
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar un producto")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+        productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 }

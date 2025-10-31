@@ -10,11 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Index;
+import jakarta.persistence.PrePersist;
 
 
 @Entity
 @Table(name = "alert_events", indexes = {
-    @Index(name = "idx_alert_product_phone", columnList = "product_id, phone_number"),
     @Index(name = "idx_alert_sentat", columnList = "sent_at")
 })
 public class AlertEvent {
@@ -22,12 +22,6 @@ public class AlertEvent {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid")
     private UUID id;
-    
-    @Column(name = "product_id", columnDefinition = "uuid", nullable = true)
-    private UUID productId;
-
-    @Column(name = "phone_number", length = 30, nullable = false)
-    private String phoneNumber;
 
     @Column(length = 500)
     private String message;
@@ -35,17 +29,19 @@ public class AlertEvent {
     @Column(name = "success", nullable = false)
     private boolean success;
 
-    @Column(name = "sent_at", nullable = false)
+    @Column(name = "sent_at", nullable = false, updatable=false)
     private Instant sentAt;
     
     public AlertEvent() {}
 
-    public AlertEvent(UUID productId, String phoneNumber, String message, boolean success, Instant sentAt) {
-        this.productId = productId;
-        this.phoneNumber = phoneNumber;
+    public AlertEvent(String message, boolean success) {
         this.message = message;
         this.success = success;
-        this.sentAt = sentAt;
+    }
+    
+    @PrePersist
+    public void prePersist() {
+    	this.sentAt = Instant.now();
     }
 
 	public UUID getId() {
@@ -54,22 +50,6 @@ public class AlertEvent {
 
 	public void setId(UUID id) {
 		this.id = id;
-	}
-
-	public UUID getProductId() {
-		return productId;
-	}
-
-	public void setProductId(UUID productId) {
-		this.productId = productId;
-	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
 	}
 
 	public String getMessage() {
@@ -90,9 +70,5 @@ public class AlertEvent {
 
 	public Instant getSentAt() {
 		return sentAt;
-	}
-
-	public void setSentAt(Instant sentAt) {
-		this.sentAt = sentAt;
 	}
 }

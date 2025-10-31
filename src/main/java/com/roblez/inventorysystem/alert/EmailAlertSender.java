@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class EmailAlertSender implements AlertSender{
 	private final JavaMailSender mailSender;
 	
-
     public EmailAlertSender(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
