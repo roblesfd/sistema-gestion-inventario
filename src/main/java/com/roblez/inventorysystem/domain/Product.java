@@ -5,9 +5,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.roblez.inventorysystem.audit.AuditEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +27,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="products", uniqueConstraints=@UniqueConstraint(name="uk_product_sku", columnNames="sku"))
+@EntityListeners(AuditEntityListener.class)
 public class Product {
 	
 	@Id

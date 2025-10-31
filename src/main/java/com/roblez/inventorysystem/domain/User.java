@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.roblez.inventorysystem.audit.AuditEntityListener;
 import com.roblez.inventorysystem.audit.Auditable;
 import com.roblez.inventorysystem.security.ValidPassword;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name="users")
+@EntityListeners(AuditEntityListener.class)
 public class User extends Auditable{
 
 	@Id

@@ -16,10 +16,11 @@ import jakarta.persistence.MappedSuperclass;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable {
 	@CreatedDate
-	@Column(updatable =  false)
+	@Column(name = "created_at", updatable = false, nullable=false)
 	private Instant createdAt;
 	
 	@LastModifiedDate
+    @Column(name = "modified_at")
 	private Instant modifiedAt;
 	
 	@CreatedBy
@@ -27,5 +28,39 @@ public abstract class Auditable {
 	private String createdBy;
 	
 	@LastModifiedBy
+    @Column(name = "modified_by", length = 100)
 	private String modifiedBy;
+
+	// Getters y Setters
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Instant getModifiedAt() {
+		return modifiedAt;
+	}
+
+	public void setModifiedAt(Instant modifiedAt) {
+		this.modifiedAt = modifiedAt;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
 }

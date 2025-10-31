@@ -3,8 +3,11 @@ package com.roblez.inventorysystem.domain;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.roblez.inventorysystem.audit.AuditEntityListener;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +19,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="stock_movements")
+@EntityListeners(AuditEntityListener.class)
 public class StockMovement {
 	@Id
 	@Column(columnDefinition="uuid")
