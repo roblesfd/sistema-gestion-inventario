@@ -24,3 +24,5 @@ logging:
 jwt:
   secret: ${SECRET_KEY}
   expiration: 1d
+inventory_api:
+  url: ${INVENTORY_API_URL}

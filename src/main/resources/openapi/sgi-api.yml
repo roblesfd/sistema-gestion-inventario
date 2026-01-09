@@ -1,0 +1,1741 @@
+openapi: 3.0.3
+
+info:
+  title: API SGI
+  description: Definición de API para Sistema de Gestión de Inventario
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+paths:
+  /api/auth/signup:
+    post:
+      summary: Registrar una cuenta de usuario
+      operationId: signup
+      requestBody:
+        description: Datos necesarios para registrar una cuenta
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+  /api/auth/login:
+    post:
+      summary: Iniciar sesión en cuenta de usuario
+      operationId: login
+      requestBody:
+        description: Datos necesarios para iniciar sesión
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Retorna token de autenticación
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+
+  /api/categories:
+    get:
+      summary: Obtener todas las categorías
+      operationId: getAllCategories
+      responses:
+        "200":
+          description: Lista de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryResponse"
+
+    post:
+      summary: Crear una categoría
+      operationId: crearCategoria
+      requestBody:
+        description: Datos necesarios para crear categoría
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+      responses:
+        "201":
+          description: Retorna DTO de categoría
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+
+  /api/categories/active:
+    get:
+      summary: Obtener categorías activas
+      operationId: getActiveCategories
+      responses:
+        "200":
+          description: Lista de categorías activas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryResponse"
+
+  /api/categories/{id}:
+    get:
+      summary: Obtener categoría por ID
+      operationId: getCategoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+
+    put:
+      summary: Actualizar categoría
+      operationId: updateCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+      responses:
+        "200":
+          description: Categoría actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+
+    delete:
+      summary: Desactivar categoría
+      description: Cambia el valor del campo active a false
+      operationId: deactivateCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Categoria desactivada exitosamente
+
+  /api/products:
+    post:
+      summary: Crear producto
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+      responses:
+        "201":
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+
+    get:
+      summary: Obtener todos los productos
+      operationId: getAllProducts
+      responses:
+        "200":
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/{id}:
+    get:
+      summary: Obtener producto por ID
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+
+    put:
+      summary: Actualizar producto
+      operationId: updateProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+      responses:
+        "200":
+          description: Producto actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+
+    delete:
+      summary: Eliminar un producto
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Producto eliminado
+
+  /api/products/{id}/stock:
+    patch:
+      summary: Ajustar stock de producto
+      description: Aumenta o disminuye el valor de 'delta' que representa el stock del producto
+      operationId: adjustStock
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStockMovementRequest"
+      responses:
+        "200":
+          description: Stock ajustado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/{id}/deactivate:
+    delete:
+      summary: Desactivar un producto
+      description: Desactiva un producto cambiando active=false
+      operationId: deactivateProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Producto desactivado
+
+  /api/products/active:
+    get:
+      summary: Obtener productos activos
+      operationId: getActiveProducts
+      responses:
+        "200":
+          description: Lista de productos activos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/sku/{sku}:
+    get:
+      summary: Obtener por SKU
+      description: Obtiene un producto a partir de su clave SKU
+      operationId: getProductBySku
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/search:
+    get:
+      summary: Buscar por nombre
+      description: Busca productos por su nombre
+      operationId: searchProductsByName
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Resultados de la búsqueda
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/low-stock:
+    get:
+      summary: Obtener productos con stock bajo
+      description: Obtiene productos por debajo de un umbral
+      operationId: getProductsLowStock
+      parameters:
+        - name: threshold
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Productos con stock bajo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductResponse"
+
+  /api/products/price-range:
+    get:
+      summary: Obtener productos por rango de precios
+      description: Obtiene productos dentro de un rango de precios
+      operationId: getProductsByPriceRange
+      parameters:
+        - name: min
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: max
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        "200":
+          description: Productos dentro del rango
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductResponse"
+  /api/purchase-orders:
+    post:
+      summary: Crear orden de compra
+      operationId: createPurchaseOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PurchaseOrderRequest"
+      responses:
+        "201":
+          description: Orden creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseOrderResponse"
+
+    get:
+      summary: Obtener todas las órdenes de compra
+      operationId: getAllPurchaseOrders
+      responses:
+        "200":
+          description: Lista de órdenes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/{id}:
+    get:
+      summary: Obtener orden por ID
+      operationId: getPurchaseOrderById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Orden encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseOrderResponse"
+
+    patch:
+      summary: Actualizar orden de compra
+      operationId: updatePurchaseOrder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PurchaseOrderUpdateRequest"
+      responses:
+        "200":
+          description: Orden actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseOrderResponse"
+
+    delete:
+      summary: Eliminar orden de compra
+      operationId: deletePurchaseOrder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Orden eliminada
+
+  /api/purchase-orders/supplier/{supplierId}:
+    get:
+      summary: Obtener órdenes por proveedor
+      operationId: getPurchaseOrdersBySupplier
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Órdenes del proveedor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/supplier/{supplierId}/count:
+    get:
+      summary: Contar órdenes por proveedor y estado
+      operationId: countPurchaseOrdersBySupplier
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: statuses
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/OrderStatus"
+      responses:
+        "200":
+          description: Total de órdenes
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+
+  /api/purchase-orders/status/{status}:
+    get:
+      summary: Obtener órdenes por estado
+      operationId: getPurchaseOrdersByStatus
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/OrderStatus"
+      responses:
+        "200":
+          description: Órdenes por estado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/statuses:
+    get:
+      summary: Obtener órdenes por múltiples estados
+      operationId: getPurchaseOrdersByStatuses
+      parameters:
+        - name: statuses
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/OrderStatus"
+      responses:
+        "200":
+          description: Órdenes encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/date-range:
+    get:
+      summary: Obtener órdenes por rango de fechas
+      operationId: getPurchaseOrdersByDateRange
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Órdenes en el rango
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/user/{userId}:
+    get:
+      summary: Obtener órdenes generadas por usuario
+      operationId: getPurchaseOrdersByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Órdenes del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/product/{productId}:
+    get:
+      summary: Obtener órdenes por producto
+      operationId: getPurchaseOrdersByProduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Órdenes que contienen el producto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderResponse"
+
+  /api/purchase-orders/items/{purchaseOrderId}:
+    get:
+      summary: Obtener ítems de una orden
+      operationId: getPurchaseOrderItems
+      parameters:
+        - name: purchaseOrderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Ítems de la orden
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrderItemResponse"
+
+  /api/reports/cli-stock-report:
+    get:
+      summary: Generar reporte de movimientos de stock en consola
+      operationId: generateCLIStockReport
+      parameters:
+        - name: productId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Reporte generado y mostrado en consola
+        "404":
+          description: No se encontraron movimientos para los filtros indicados
+
+  /api/reports/pdf-stock-report:
+    get:
+      summary: Generar reporte PDF de movimientos de stock
+      operationId: generatePdfStockReport
+      parameters:
+        - name: productId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: PDF generado
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No se encontraron movimientos de stock
+
+  /api/reports/pdf-user-report:
+    get:
+      summary: Generar reporte PDF de usuarios
+      operationId: generatePdfUserReport
+      responses:
+        "200":
+          description: PDF generado
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No se encontraron usuarios registrados
+
+  /api/reports/pdf-product-report:
+    get:
+      summary: Generar reporte PDF de productos
+      operationId: generatePdfProductReport
+      responses:
+        "200":
+          description: PDF generado
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No se encontraron productos registrados
+
+  /api/reports/pdf-purchase-order-report:
+    get:
+      summary: Generar reporte PDF de órdenes de compra
+      operationId: generatePdfPurchaseOrderReport
+      responses:
+        "200":
+          description: PDF generado
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No se encontraron órdenes registradas
+
+  /api/reports/pdf-supplier-report:
+    get:
+      summary: Generar reporte PDF de proveedores
+      operationId: generatePdfSupplierReport
+      responses:
+        "200":
+          description: PDF generado
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No se encontraron proveedores registrados			
+
+  /api/roles:
+    post:
+      tags:
+        - Role
+      summary: Crear un rol
+      operationId: createRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleRequest"
+      responses:
+        "200":
+          description: Rol creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+
+    get:
+      tags:
+        - Role
+      summary: Obtener todos los roles
+      operationId: getAllRoles
+      responses:
+        "200":
+          description: Lista de roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoleResponse"
+
+  /api/roles/{id}:
+    get:
+      tags:
+        - Role
+      summary: Obtener rol por ID
+      operationId: getRoleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Rol encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+
+    patch:
+      tags:
+        - Role
+      summary: Actualizar rol
+      operationId: updateRole
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleRequest"
+      responses:
+        "200":
+          description: Rol actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+
+  /api/stock-movements:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener todos los movimientos de stock
+      operationId: getAllMovements
+      responses:
+        "200":
+          description: Lista de movimientos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/product/{id}:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos por producto
+      operationId: getMovementsByProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Movimientos del producto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/product/{id}/range:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos dentro de un rango de fechas
+      description: Obtiene todos los movimientos entre from y to
+      operationId: getMovementsByDateRange
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Movimientos en el rango indicado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/recent:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos recientes
+      description: Obtiene los últimos 10 movimientos
+      operationId: getRecentMovements
+      responses:
+        "200":
+          description: Movimientos recientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/after-date:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos después de una fecha
+      operationId: getMovementsAfterDate
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Movimientos posteriores a la fecha
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/before-date:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos antes de una fecha
+      operationId: getMovementsBeforeDate
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Movimientos anteriores a la fecha
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/stock-movements/gte-quantity:
+    get:
+      tags:
+        - StockMovement
+      summary: Obtener movimientos con delta mayor o igual al valor
+      operationId: getMovementsGreaterThanDelta
+      parameters:
+        - name: delta
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Movimientos filtrados por cantidad
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovementResponse"
+
+  /api/suppliers:
+    post:
+      tags:
+        - Supplier
+      summary: Crear proveedor
+      operationId: createSupplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplierRequest"
+      responses:
+        "201":
+          description: Proveedor creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplierResponse"
+        "400":
+          description: Datos inválidos
+
+    get:
+      tags:
+        - Supplier
+      summary: Obtener todos los proveedores
+      operationId: getAllSuppliers
+      responses:
+        "200":
+          description: Lista de proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupplierResponse"
+
+  /api/suppliers/{id}:
+    get:
+      tags:
+        - Supplier
+      summary: Obtener proveedor por ID
+      operationId: getSupplierById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Proveedor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplierResponse"
+        "404":
+          description: Proveedor no encontrado
+
+    put:
+      tags:
+        - Supplier
+      summary: Actualizar proveedor
+      operationId: updateSupplier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplierRequest"
+      responses:
+        "200":
+          description: Proveedor actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplierResponse"
+        "400":
+          description: Datos inválidos
+        "404":
+          description: Proveedor no encontrado
+
+    delete:
+      tags:
+        - Supplier
+      summary: Eliminar proveedor
+      operationId: deleteSupplier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Proveedor eliminado
+
+  /api/users:
+    post:
+      tags:
+        - User
+      summary: Crear usuario
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequest"
+      responses:
+        "200":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Datos inválidos
+  
+    get:
+      tags:
+        - User
+      summary: Obtener todos los usuarios
+      operationId: getAllUsers
+      responses:
+        "200":
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+  
+  /api/users/{id}:
+    get:
+      tags:
+        - User
+      summary: Obtener usuario por ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: Usuario no encontrado
+  
+    patch:
+      tags:
+        - User
+      summary: Actualizar datos del usuario
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  
+    delete:
+      tags:
+        - User
+      summary: Eliminar usuario
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Usuario eliminado
+  
+  /api/users/search:
+    get:
+      tags:
+        - User
+      summary: Buscar usuario
+      description: Buscar un usuario por nombre de usuario o email
+      operationId: searchUser
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: Usuario no encontrado
+  
+  /api/users/{id}/password:
+    patch:
+      tags:
+        - User
+      summary: Cambiar contraseña
+      operationId: changePassword
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "204":
+          description: Contraseña actualizada
+  
+  /api/users/{id}/status:
+    patch:
+      tags:
+        - User
+      summary: Activar o desactivar cuenta
+      operationId: toggleUserStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: active
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  
+  /api/users/{id}/roles:
+    patch:
+      tags:
+        - User
+      summary: Actualizar roles
+      operationId: updateUserRoles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRoleRequest"
+      responses:
+        "200":
+          description: Roles actualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+              
+components:
+  schemas:
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        lastName:
+          type: string
+        roles:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Role"
+        lastConnection:
+          type: string
+          format: date-time
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        active:
+          type: boolean
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        active:
+          type: boolean
+
+    ProductResponse:
+      type: object
+      required:
+        - id
+        - name
+        - sku
+        - price
+        - stock
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        stock:
+          type: integer
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ProductRequest:
+      type: object
+      required:
+        - name
+        - sku
+        - price
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        active:
+          type: boolean
+
+    PurchaseOrderRequest:
+      type: object
+      required:
+        - status
+        - supplierId
+        - generatedById
+        - expectedDeliveryDate
+        - items
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        supplierId:
+          type: string
+          format: uuid
+        generatedById:
+          type: string
+          format: uuid
+        expectedDeliveryDate:
+          type: string
+          format: date-time
+        items:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/PurchaseOrderItemRequest"
+    
+    PurchaseOrderItemRequest:
+      type: object
+      properties:
+        productId: 
+          type: string
+          format: string
+        quantity:
+          type: number
+          format: integer
+        unitPrice:
+          type: number
+          format: double
+
+    PurchaseOrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        supplier:
+          $ref: "#/components/schemas/SupplierResponse"
+        generatedBy:
+          $ref: "#/components/schemas/UserResponse"
+        expectedDeliveryDate:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseOrderItemResponse"
+        total:
+          type: number
+          format: double
+
+    PurchaseOrderItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product:
+          $ref: "#/components/schemas/ProductResponse"
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: double
+
+    PurchaseOrderUpdateRequest:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        supplierId:
+          type: string
+          format: uuid
+        generatedById:
+          type: string
+          format: uuid
+        expectedDeliveryDate:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseOrderItemUpdateRequest"
+        total:
+          type: number
+          format: double
+
+    PurchaseOrderItemUpdateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        purchaseOrderId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: double
+
+    SupplierResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+          format: phone
+        purchaseOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseOrderResponse"
+
+    OrderStatus:
+      type: string
+      description: Estado de la orden de compra
+      enum:
+        - PENDING
+        - APPROVED
+        - RECEIVED
+        - CANCELLED
+
+    UpdateStockMovementRequest:
+      type: object
+      required:
+        - delta
+      properties:
+        delta:
+          type: integer
+          description: "positivo=entrada, negativo=salida"
+        reason:
+          type: string
+
+    RoleRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Nombre del rol
+        description: 
+          type: string
+
+    RoleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description: 
+          type: string
+          
+    StockMovementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        delta:
+          type: integer
+          description: "positivo = entrada, negativo = salida"
+        reason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time		
+              
+    SupplierRequest:
+      type: object
+      required:
+        - fullName
+        - contactEmail
+        - phoneNumber
+      properties:
+        fullName:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+          description: Número telefónico del proveedor
+          example: "+52-55-1234-5678"
+
+    UserRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        name:
+          type: string
+        lastName:
+          type: string
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        lastName:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          format: password
+        newPassword:
+          type: string
+          format: password
+
+    UpdateUserRoleRequest:
+      type: object
+      required:
+        - roles
+      properties:
+        roles:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Role"
+    Role:
+      type: string
+      enum:
+        - ADMIN
+        - USER
+

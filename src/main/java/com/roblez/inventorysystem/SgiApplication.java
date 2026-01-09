@@ -20,6 +20,8 @@ public class SgiApplication {
 		System.setProperty("PHONE_NUMBER", dotenv.get("PHONE_NUMBER"));
 		System.setProperty("CARRIER_GATEWAY", dotenv.get("CARRIER_GATEWAY"));
 		System.setProperty("EMAIL_RECIPIENT", dotenv.get("EMAIL_RECIPIENT"));
+		System.setProperty("INVENTORY_API_URL", dotenv.get("INVENTORY_API_URL"));
+
 		
 		SpringApplication.run(SgiApplication.class, args);
 	}
